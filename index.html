@@ -257,7 +257,7 @@
             border-radius: 12px;
         }
 
-        /* Customization for html5-qrcode standard buttons */
+        /* Tombol html5-qrcode */
         #reader button {
             background-color: var(--accent-yellow) !important;
             color: var(--primary-brown) !important;
@@ -342,7 +342,6 @@
     <nav class="navbar">
         <div class="navbar-brand">
             <div class="navbar-logo">
-                <!-- LOGO OSIS SMAN 1 KALIBUNDER -->
                 <img src="OSIS.png" alt="Logo OSIS SMAN 1 Kalibunder">
             </div>
             <div class="navbar-title">
@@ -363,7 +362,7 @@
                 <p>Langkah 1: Scan QR Code, lalu Langkah 2: Pilih Kelompok</p>
             </div>
 
-            <!-- LANGKAH 1: Scanner Frame (Ditaruh Pertama) -->
+            <!-- LANGKAH 1: Scanner Frame -->
             <div class="form-group">
                 <label><i class="fa-solid fa-qrcode" style="margin-right: 6px; color: var(--dark-yellow);"></i> 1. Scan QR Code Nama</label>
                 <div class="scanner-container">
@@ -376,7 +375,7 @@
                 </div>
             </div>
 
-            <!-- LANGKAH 2: Pilih Kelompok (Ditaruh Kedua & Dibuat Disabled Awalnya) -->
+            <!-- LANGKAH 2: Pilih Kelompok -->
             <div class="form-group">
                 <label for="kelompokSelect"><i class="fa-solid fa-users" style="margin-right: 6px; color: var(--dark-yellow);"></i> 2. Kelompok Calon Pengurus</label>
                 <div class="select-wrapper">
@@ -409,14 +408,13 @@
 
     <!-- JAVASCRIPT LOGIC -->
     <script>
-        // MASUKKAN URL GOOGLE APPS SCRIPT ANDA DI SINI
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz-OcyT2C6kVUihOKAJG2P6qL0NuWfyNL-OpNOrRvD-fyHB-dTDNuEUnYx1mvHPB2gQ/exec";
+        // Ganti URL berikut dengan URL Web App dari Apps Script milik Anda
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzizxmjS32CgZHBS4JumRJMnLXqSfGQUGkgFgBkuWyrmd_nRfzzI70n9gSo5WFO5uN5/exec";
 
         let isProcessing = false;
-        let scannedNama = ""; // Menyimpan hasil scan QR sementara
+        let scannedNama = ""; 
         let audioCtx = null;
 
-        // Inisialisasi Audio Context
         function getAudioContext() {
             if (!audioCtx) {
                 audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -427,7 +425,6 @@
             return audioCtx;
         }
 
-        // Suara Beep Sukses (Tinggi dan Pendek - Seperti Scanner Kasir)
         function playSuccessBeep() {
             try {
                 const ctx = getAudioContext();
@@ -435,10 +432,10 @@
                 const gain = ctx.createGain();
 
                 osc.type = 'sine';
-                osc.frequency.setValueAtTime(1200, ctx.currentTime); // Frekuensi 1200 Hz
+                osc.frequency.setValueAtTime(1200, ctx.currentTime);
 
                 gain.gain.setValueAtTime(0.3, ctx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.15); // Durasi 0.15 detik
+                gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.15);
 
                 osc.connect(gain);
                 gain.connect(ctx.destination);
@@ -450,16 +447,14 @@
             }
         }
 
-        // Suara Beep Gagal (Nada Rendah 2 Kali - Peringatan Error)
         function playErrorBeep() {
             try {
                 const ctx = getAudioContext();
 
-                // Beep Pertama
                 const osc1 = ctx.createOscillator();
                 const gain1 = ctx.createGain();
                 osc1.type = 'sawtooth';
-                osc1.frequency.setValueAtTime(300, ctx.currentTime); // Frekuensi 300 Hz
+                osc1.frequency.setValueAtTime(300, ctx.currentTime);
                 gain1.gain.setValueAtTime(0.3, ctx.currentTime);
                 gain1.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.15);
                 osc1.connect(gain1);
@@ -467,12 +462,11 @@
                 osc1.start();
                 osc1.stop(ctx.currentTime + 0.15);
 
-                // Beep Kedua (setelah jeda singkat)
                 setTimeout(() => {
                     const osc2 = ctx.createOscillator();
                     const gain2 = ctx.createGain();
                     osc2.type = 'sawtooth';
-                    osc2.frequency.setValueAtTime(220, ctx.currentTime); // Frekuensi 220 Hz
+                    osc2.frequency.setValueAtTime(220, ctx.currentTime);
                     gain2.gain.setValueAtTime(0.3, ctx.currentTime);
                     gain2.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.2);
                     osc2.connect(gain2);
@@ -507,89 +501,112 @@
             text.innerText = message;
         }
 
-        // FUNGSI 1: Dipanggil otomatis saat Scan QR Code berhasil
         function onScanSuccess(decodedText) {
             if (isProcessing || scannedNama === decodedText) return;
 
-            // playSuccessBeep(); // Suara Beep saat QR Terbaca
+            playSuccessBeep(); 
             scannedNama = decodedText;
 
-            // Tampilkan info data QR yang di-scan
             const scannedInfo = document.getElementById('scanned-info');
             const scannedText = document.getElementById('scanned-name-text');
             scannedText.innerText = "Terbaca: " + decodedText;
             scannedInfo.style.display = 'block';
 
-            // Aktifkan pilihan kelompok
             const kelompokSelect = document.getElementById('kelompokSelect');
             kelompokSelect.disabled = false;
             kelompokSelect.options[0].text = "-- Sekarang Pilih Kelompok --";
             kelompokSelect.focus();
 
-            // Aktifkan tombol submit
             document.getElementById('btnSubmit').disabled = false;
 
             setStatus("Barcode terbaca! Silakan pilih kelompok di bawah ini.", "success");
         }
 
-        // FUNGSI 2: Dipanggil saat menekan tombol "Kirim Absensi"
-        function submitAbsensi() {
+        // Fungsi Ambil Koordinat GPS Pengguna
+        function getLocationCoords() {
+            return new Promise((resolve, reject) => {
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(
+                        (position) => {
+                            resolve({
+                                lat: position.coords.latitude,
+                                lng: position.coords.longitude
+                            });
+                        },
+                        (error) => {
+                            reject("GPS tidak diizinkan atau tidak aktif.");
+                        },
+                        { enableHighAccuracy: true, timeout: 7000, maximumAge: 0 }
+                    );
+                } else {
+                    reject("Geolocation tidak didukung browser ini.");
+                }
+            });
+        }
+
+        // FUNGSI UTAMA: Kirim Data Absensi + Geofencing GPS
+        async function submitAbsensi() {
             if (isProcessing) return;
 
             const kelompok = document.getElementById('kelompokSelect').value;
 
-            if (!scannedNama) {
+            if (!scannedNama || !kelompok) {
                 playErrorBeep();
-                setStatus("Silakan scan QR Code terlebih dahulu!", "error");
-                return;
-            }
-
-            if (!kelompok) {
-                playErrorBeep();
-                setStatus("Silakan pilih kelompok terlebih dahulu!", "error");
-                document.getElementById('kelompokSelect').focus();
+                setStatus("Lengkapi scan QR dan pilihan kelompok terlebih dahulu!", "error");
                 return;
             }
 
             isProcessing = true;
-            setStatus(`Mengirim data: ${scannedNama}...`, "loading");
+            setStatus("Mendapatkan lokasi GPS Anda...", "loading");
+
+            let coords;
+            try {
+                coords = await getLocationCoords();
+            } catch (err) {
+                playErrorBeep();
+                setStatus("Gagal: Aktifkan GPS / Izin Lokasi di browser Anda!", "error");
+                isProcessing = false;
+                return;
+            }
+
+            setStatus("Verifikasi posisi & mengirim data...", "loading");
 
             const payload = {
                 nama: scannedNama,
-                kelompok: kelompok
+                kelompok: kelompok,
+                lat: coords.lat,
+                lng: coords.lng
             };
 
             fetch(SCRIPT_URL, {
                 method: 'POST',
-                mode: 'no-cors',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
                 body: JSON.stringify(payload)
             })
-            .then(() => {
-                playSuccessBeep(); // Suara beep sukses kirim
-                setStatus(`Berhasil Absen! ${scannedNama} (${kelompok})`, "success");
-                
-                // Reset Form Setelah 3 Detik
-                setTimeout(() => {
-                    resetForm();
-                }, 3000);
+            .then(res => res.json())
+            .then(data => {
+                if (data.status === "success") {
+                    playSuccessBeep();
+                    setStatus(data.message, "success");
+                    setTimeout(() => { resetForm(); }, 3500);
+                } else {
+                    playErrorBeep();
+                    setStatus(data.message, "error");
+                    isProcessing = false;
+                }
             })
             .catch(error => {
                 console.error('Error:', error);
                 playErrorBeep();
-                setStatus("Gagal terhubung ke database server.", "error");
+                setStatus("Gagal terhubung ke server absensi.", "error");
                 isProcessing = false;
             });
         }
 
-        // Fungsi Reset Form Kembali ke Awal
         function resetForm() {
             isProcessing = false;
             scannedNama = "";
             
-            // Reset UI
             document.getElementById('scanned-info').style.display = 'none';
             document.getElementById('status-card').style.display = 'none';
             
@@ -601,7 +618,7 @@
             document.getElementById('btnSubmit').disabled = true;
         }
 
-        // Inisialisasi Scanner dengan Kamera Belakang HP
+        // Inisialisasi Scanner QR
         const html5QrcodeScanner = new Html5QrcodeScanner(
             "reader", 
             { 
